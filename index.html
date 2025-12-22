@@ -4,20 +4,87 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Merry Christmas!</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Mountains+of+Christmas:wght@400;700&family=Crimson+Pro:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <!-- Snow Canvas -->
+    <canvas id="snow-canvas"></canvas>
+
     <header>
-        <h1>Merry Christmas! 🎄</h1>
+        <h1>Merry Christmas!</h1>
+        <p class="subtitle">From Rohan!</p>
     </header>
+
     <main>
-        <p>Welcome to our festive Christmas website!</p>
-        <div id="countdown">
-            <!-- Future countdown timer -->
-        </div>
+        <div id="countdown"></div>
+
+        <section class="gallery">
+            <h2>Family Memories</h2>
+            <div class="gallery-grid">
+                <!-- Image Card 1 -->
+                <div class="image-card" data-original="https://picsum.photos/seed/family1/400/300" data-christmas="https://picsum.photos/seed/xmas1/400/300">
+                    <div class="image-container">
+                        <img src="https://picsum.photos/seed/family1/400/300" alt="Family Photo 1">
+                    </div>
+                    <button class="christmasify-btn">Christmasify?</button>
+                    <button class="toggle-btn hidden">Switch Image</button>
+                </div>
+
+                <!-- Image Card 2 -->
+                <div class="image-card" data-original="https://picsum.photos/seed/family2/400/300" data-christmas="https://picsum.photos/seed/xmas2/400/300">
+                    <div class="image-container">
+                        <img src="https://picsum.photos/seed/family2/400/300" alt="Family Photo 2">
+                    </div>
+                    <button class="christmasify-btn">Christmasify?</button>
+                    <button class="toggle-btn hidden">Switch Image</button>
+                </div>
+
+                <!-- Image Card 3 -->
+                <div class="image-card" data-original="https://picsum.photos/seed/family3/400/300" data-christmas="https://picsum.photos/seed/xmas3/400/300">
+                    <div class="image-container">
+                        <img src="https://picsum.photos/seed/family3/400/300" alt="Family Photo 3">
+                    </div>
+                    <button class="christmasify-btn">Christmasify?</button>
+                    <button class="toggle-btn hidden">Switch Image</button>
+                </div>
+
+                <!-- Image Card 4 -->
+                <div class="image-card" data-original="https://picsum.photos/seed/family4/400/300" data-christmas="https://picsum.photos/seed/xmas4/400/300">
+                    <div class="image-container">
+                        <img src="https://picsum.photos/seed/family4/400/300" alt="Family Photo 4">
+                    </div>
+                    <button class="christmasify-btn">Christmasify?</button>
+                    <button class="toggle-btn hidden">Switch Image</button>
+                </div>
+
+                <!-- Image Card 5 -->
+                <div class="image-card" data-original="https://picsum.photos/seed/family5/400/300" data-christmas="https://picsum.photos/seed/xmas5/400/300">
+                    <div class="image-container">
+                        <img src="https://picsum.photos/seed/family5/400/300" alt="Family Photo 5">
+                    </div>
+                    <button class="christmasify-btn">Christmasify?</button>
+                    <button class="toggle-btn hidden">Switch Image</button>
+                </div>
+
+                <!-- Image Card 6 -->
+                <div class="image-card" data-original="https://picsum.photos/seed/family6/400/300" data-christmas="https://picsum.photos/seed/xmas6/400/300">
+                    <div class="image-container">
+                        <img src="https://picsum.photos/seed/family6/400/300" alt="Family Photo 6">
+                    </div>
+                    <button class="christmasify-btn">Christmasify?</button>
+                    <button class="toggle-btn hidden">Switch Image</button>
+                </div>
+            </div>
+        </section>
     </main>
+
     <footer>
         <p>&copy; 2025 Christmas Celebration</p>
     </footer>
-<script src="script.js"></script></body>
+
+    <script src="script.js"></script>
+</body>
 </html>
