@@ -1,0 +1,35 @@
+body {
+    background-color: #0a2e12; /* Deep Christmas Green */
+    color: #ffffff;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    text-align: center;
+    padding: 50px;
+    background-image: radial-gradient(circle, #1a4a2e 10%, transparent 10%);
+    background-size: 20px 20px;
+}
+
+header h1 {
+    color: #e74c3c; /* Bright Christmas Red */
+    font-size: 4em;
+    text-shadow: 2px 2px 4px #000;
+}
+
+main {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 20px;
+    border-radius: 15px;
+    display: inline-block;
+    margin-top: 30px;
+}
+
+#countdown {
+    font-size: 2em;
+    margin-top: 20px;
+    color: #f1c40f; /* Gold */
+}
+
+footer {
+    margin-top: 50px;
+    font-size: 0.9em;
+    color: #bdc3c7;
+}
