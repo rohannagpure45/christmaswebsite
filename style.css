@@ -42,6 +42,10 @@ body {
     height: 100%;
     pointer-events: none;
     z-index: 1000;
+    /* GPU layer promotion for iOS Safari performance */
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+    will-change: transform;
 }
 
 /* Header */
@@ -99,8 +103,7 @@ main {
     font-family: 'Mountains of Christmas', cursive;
     font-size: clamp(1.2rem, 4vw, 2rem);
     color: var(--christmas-gold-light);
-    background: var(--card-bg);
-    backdrop-filter: blur(10px);
+    background: rgba(0, 30, 15, 0.9);
     padding: 20px 40px;
     border-radius: 50px;
     display: inline-block;
@@ -131,8 +134,7 @@ main {
 
 /* Image Cards */
 .image-card {
-    background: var(--card-bg);
-    backdrop-filter: blur(10px);
+    background: rgba(0, 30, 15, 0.85);
     border-radius: 20px;
     padding: 15px;
     border: 2px solid var(--card-border);
@@ -257,6 +259,12 @@ footer {
 @media (max-width: 768px) {
     body {
         padding: 20px 15px;
+    }
+
+    /* Disable expensive multi-shadow animation on mobile for iOS Safari performance */
+    header h1 {
+        animation: none;
+        text-shadow: 3px 3px 0 var(--christmas-red-dark);
     }
 
     .gallery-grid {

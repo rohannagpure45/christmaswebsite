@@ -31,13 +31,25 @@ class Snowfall {
         this.canvas = document.getElementById('snow-canvas');
         this.ctx = this.canvas.getContext('2d');
         this.snowflakes = [];
-        this.snowflakeCount = 150;
+        // Reduce snowflake count on mobile for better performance
+        this.snowflakeCount = window.innerWidth <= 768 ? 75 : 150;
         
         this.resize();
         this.init();
         this.animate();
         
-        window.addEventListener('resize', () => this.resize());
+        // Debounced resize handler for iOS Safari performance
+        this.handleResize = this.debounce(() => this.resize(), 250);
+        window.addEventListener('resize', this.handleResize);
+        window.addEventListener('orientationchange', () => this.resize());
+    }
+    
+    debounce(fn, delay) {
+        let timeout;
+        return () => {
+            clearTimeout(timeout);
+            timeout = setTimeout(fn, delay);
+        };
     }
     
     resize() {
@@ -95,16 +107,8 @@ class Snowfall {
             this.ctx.beginPath();
             this.ctx.arc(flake.x, flake.y, flake.radius, 0, Math.PI * 2);
             this.ctx.fillStyle = `rgba(255, 255, 255, ${flake.opacity})`;
-            
-            // Add a subtle glow effect - set BEFORE fill
-            this.ctx.shadowBlur = 5;
-            this.ctx.shadowColor = 'rgba(255, 255, 255, 0.5)';
-            
             this.ctx.fill();
         });
-        
-        // Reset shadow for next frame
-        this.ctx.shadowBlur = 0;
     }
     
     animate() {
