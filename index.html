@@ -89,7 +89,40 @@
                 <button class="game-btn stop-btn hidden" id="stop-game">Stop Game</button>
             </div>
             <p class="game-message" id="game-message"></p>
+
+            <!-- Leaderboard -->
+            <div class="leaderboard">
+                <h3>🏆 Leaderboard</h3>
+                <table class="leaderboard-table">
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Name</th>
+                            <th>Score</th>
+                        </tr>
+                    </thead>
+                    <tbody id="leaderboard-body">
+                        <tr class="empty-row">
+                            <td colspan="3">No scores yet - be the first!</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </section>
+
+        <!-- Name Entry Modal -->
+        <div class="name-modal-overlay hidden" id="name-modal">
+            <div class="name-modal">
+                <h3>🎉 Game Over!</h3>
+                <p class="modal-score">You scored <span id="modal-score-value">0</span> points!</p>
+                <p class="modal-prompt">Enter your name for the leaderboard:</p>
+                <input type="text" id="player-name-input" maxlength="15" placeholder="Your name" autocomplete="off">
+                <div class="modal-buttons">
+                    <button class="game-btn modal-submit" id="submit-score">Submit</button>
+                    <button class="game-btn modal-skip" id="skip-score">Skip</button>
+                </div>
+            </div>
+        </div>
 
         <section class="gallery">
             <h2>Family Memories</h2>
