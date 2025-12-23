@@ -1,14 +1,20 @@
-/* CSS Variables for Christmas Theme */
+/* CSS Variables for Winter Wonderland Theme */
 :root {
+    --winter-dark: #0a1628;
+    --winter-mid: #1a3a5c;
+    --winter-light: #2d5a87;
+    --aurora-green: #4ade80;
+    --aurora-blue: #22d3ee;
+    --aurora-purple: #a855f7;
     --christmas-red: #c41e3a;
     --christmas-red-dark: #8b0000;
-    --christmas-green: #0f5132;
-    --christmas-green-dark: #0a3622;
+    --christmas-green: #166534;
+    --christmas-green-dark: #14532d;
     --christmas-gold: #d4af37;
     --christmas-gold-light: #f4d03f;
     --snow-white: #f8f9fa;
     --card-bg: rgba(255, 255, 255, 0.08);
-    --card-border: rgba(255, 255, 255, 0.15);
+    --card-border: rgba(255, 255, 255, 0.2);
 }
 
 /* Reset & Base */
@@ -24,13 +30,170 @@ html {
 
 body {
     min-height: 100vh;
-    background: linear-gradient(135deg, var(--christmas-green-dark) 0%, var(--christmas-green) 50%, #1a5c3c 100%);
+    background: linear-gradient(180deg, var(--winter-dark) 0%, var(--winter-mid) 40%, var(--winter-light) 100%);
     color: var(--snow-white);
     font-family: 'Crimson Pro', Georgia, serif;
     text-align: center;
     padding: 40px 20px;
+    /* iOS Safari safe area support */
+    padding-left: max(20px, env(safe-area-inset-left));
+    padding-right: max(20px, env(safe-area-inset-right));
+    padding-bottom: max(20px, env(safe-area-inset-bottom));
     overflow-x: hidden;
     position: relative;
+    /* Smooth scroll momentum for iOS Safari */
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Aurora Borealis Background Effect */
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: 
+        radial-gradient(ellipse 80% 50% at 20% 20%, rgba(74, 222, 128, 0.15) 0%, transparent 50%),
+        radial-gradient(ellipse 60% 40% at 70% 30%, rgba(34, 211, 238, 0.12) 0%, transparent 50%),
+        radial-gradient(ellipse 70% 50% at 50% 10%, rgba(168, 85, 247, 0.1) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+    animation: auroraShift 15s ease-in-out infinite alternate;
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+}
+
+@keyframes auroraShift {
+    0% {
+        opacity: 0.6;
+        filter: hue-rotate(0deg);
+    }
+    50% {
+        opacity: 0.8;
+        filter: hue-rotate(15deg);
+    }
+    100% {
+        opacity: 0.6;
+        filter: hue-rotate(-10deg);
+    }
+}
+
+/* Christmas Tree in Corner */
+.christmas-tree {
+    position: fixed;
+    bottom: 0;
+    right: 20px;
+    width: 120px;
+    height: 180px;
+    z-index: 2;
+    pointer-events: none;
+}
+
+.christmas-tree::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 20px;
+    height: 30px;
+    background: linear-gradient(180deg, #5d4037 0%, #3e2723 100%);
+    border-radius: 2px;
+}
+
+.christmas-tree::after {
+    content: '';
+    position: absolute;
+    bottom: 25px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 60px solid transparent;
+    border-right: 60px solid transparent;
+    border-bottom: 150px solid var(--christmas-green-dark);
+    filter: drop-shadow(0 0 20px rgba(22, 101, 52, 0.5));
+}
+
+/* Tree Ornaments */
+.tree-lights {
+    position: fixed;
+    bottom: 30px;
+    right: 20px;
+    width: 120px;
+    height: 150px;
+    z-index: 3;
+    pointer-events: none;
+}
+
+.tree-lights::before,
+.tree-lights::after {
+    content: '';
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    /* Static lights - no animation */
+}
+
+.tree-lights::before {
+    top: 40px;
+    left: 45px;
+    background: var(--christmas-gold);
+    box-shadow: 
+        20px 30px 0 var(--christmas-red),
+        -15px 50px 0 var(--aurora-blue),
+        25px 70px 0 var(--christmas-gold),
+        -20px 90px 0 var(--christmas-red),
+        15px 110px 0 var(--aurora-green);
+}
+
+.tree-lights::after {
+    top: 55px;
+    left: 65px;
+    background: var(--aurora-purple);
+    box-shadow: 
+        -30px 25px 0 var(--aurora-green),
+        10px 45px 0 var(--christmas-red),
+        -25px 65px 0 var(--christmas-gold),
+        5px 85px 0 var(--aurora-blue);
+}
+
+/* Tree Star */
+.tree-star {
+    position: fixed;
+    bottom: 175px;
+    right: 72px;
+    width: 16px;
+    height: 16px;
+    background: var(--christmas-gold);
+    z-index: 4;
+    pointer-events: none;
+    clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+    animation: starGlow 2s ease-in-out infinite alternate;
+}
+
+@keyframes twinkle {
+    0% {
+        opacity: 0.5;
+        transform: scale(0.8);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1.1);
+    }
+}
+
+@keyframes starGlow {
+    0% {
+        box-shadow: 0 0 10px var(--christmas-gold), 0 0 20px var(--christmas-gold);
+        filter: brightness(1);
+    }
+    100% {
+        box-shadow: 0 0 20px var(--christmas-gold), 0 0 40px var(--christmas-gold-light);
+        filter: brightness(1.3);
+    }
 }
 
 /* Snow Canvas */
@@ -103,18 +266,364 @@ main {
     font-family: 'Mountains of Christmas', cursive;
     font-size: clamp(1.2rem, 4vw, 2rem);
     color: var(--christmas-gold-light);
-    background: rgba(0, 30, 15, 0.9);
+    background: rgba(10, 22, 40, 0.9);
     padding: 20px 40px;
     border-radius: 50px;
     display: inline-block;
     margin-bottom: 50px;
     border: 2px solid var(--card-border);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), inset 0 0 20px rgba(74, 222, 128, 0.05);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+/* ==========================================
+   Video Section
+   ========================================== */
+.video-section {
+    margin-bottom: 60px;
+    padding: 30px 20px;
+    background: rgba(10, 22, 40, 0.7);
+    border-radius: 30px;
+    border: 2px solid var(--card-border);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.video-section h2 {
+    font-family: 'Mountains of Christmas', cursive;
+    font-size: clamp(1.8rem, 5vw, 2.5rem);
+    color: var(--christmas-gold);
+    margin-bottom: 20px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.video-container {
+    max-width: 800px;
+    margin: 0 auto;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+}
+
+.video-container video {
+    width: 100%;
+    height: auto;
+    display: block;
+    background: #000;
+}
+
+/* ==========================================
+   Whack-a-Mole Game Section
+   ========================================== */
+.game-section {
+    margin-bottom: 60px;
+    padding: 30px 20px;
+    background: rgba(10, 22, 40, 0.7);
+    border-radius: 30px;
+    border: 2px solid var(--card-border);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.game-section h2 {
+    font-family: 'Mountains of Christmas', cursive;
+    font-size: clamp(1.8rem, 5vw, 2.5rem);
+    color: var(--christmas-gold);
+    margin-bottom: 10px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.game-subtitle {
+    color: var(--snow-white);
+    opacity: 0.8;
+    margin-bottom: 20px;
+    font-size: 1.1rem;
+}
+
+.game-stats {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    margin-bottom: 25px;
+    flex-wrap: wrap;
+}
+
+.stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 12px 25px;
+    border-radius: 15px;
+    min-width: 90px;
+}
+
+.stat-label {
+    font-size: 0.85rem;
+    color: var(--aurora-blue);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+}
+
+.stat-value {
+    font-family: 'Mountains of Christmas', cursive;
+    font-size: 2rem;
+    color: var(--christmas-gold-light);
+    font-weight: 700;
+}
+
+.game-board {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+    max-width: 400px;
+    margin: 0 auto 25px;
+    padding: 20px;
+}
+
+.mole-hole {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+}
+
+.snow-mound {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+    height: 40%;
+    background: linear-gradient(180deg, #e8f4fc 0%, #b8d4e8 100%);
+    border-radius: 50% 50% 0 0;
+    z-index: 2;
+    box-shadow: inset 0 -5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.snow-mound::before {
+    content: '';
+    position: absolute;
+    top: 5px;
+    left: 10%;
+    width: 80%;
+    height: 30%;
+    background: rgba(255, 255, 255, 0.6);
+    border-radius: 50%;
+    filter: blur(3px);
+}
+
+.character {
+    position: absolute;
+    bottom: 20%;
+    left: 50%;
+    transform: translateX(-50%) translateY(100%);
+    width: 70%;
+    height: 70%;
+    z-index: 1;
+    opacity: 0;
+    transition: transform 0.15s ease-out, opacity 0.1s ease-out;
+    -webkit-transform: translateX(-50%) translateY(100%);
+    will-change: transform, opacity;
+}
+
+.character.active {
+    transform: translateX(-50%) translateY(0);
+    -webkit-transform: translateX(-50%) translateY(0);
+    opacity: 1;
+}
+
+.character.whacked {
+    animation: whackBounce 0.3s ease-out;
+}
+
+@keyframes whackBounce {
+    0% { transform: translateX(-50%) translateY(0) scale(1); }
+    50% { transform: translateX(-50%) translateY(-10px) scale(0.8); }
+    100% { transform: translateX(-50%) translateY(100%) scale(0.5); opacity: 0; }
+}
+
+/* Character Types - CSS Rendered */
+.character.snowman {
+    background: radial-gradient(circle at 50% 30%, #ffffff 0%, #e8e8e8 100%);
+    border-radius: 50% 50% 45% 45%;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.character.snowman::before {
+    content: '';
+    position: absolute;
+    top: 15%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60%;
+    height: 15%;
+    background: var(--christmas-red);
+    border-radius: 20px 20px 0 0;
+}
+
+.character.snowman::after {
+    content: '⛄';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 2rem;
+}
+
+.character.reindeer {
+    background: radial-gradient(circle at 50% 40%, #8B4513 0%, #654321 100%);
+    border-radius: 40% 40% 50% 50%;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.character.reindeer::before {
+    content: '🦌';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 2.2rem;
+}
+
+.character.present {
+    background: linear-gradient(135deg, var(--christmas-red) 0%, var(--christmas-red-dark) 100%);
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.character.present::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 45%;
+    width: 10%;
+    height: 100%;
+    background: var(--christmas-gold);
+}
+
+.character.present::after {
+    content: '🎁';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 2rem;
+}
+
+.character.candy {
+    background: linear-gradient(45deg, #ff0000 25%, #ffffff 25%, #ffffff 50%, #ff0000 50%, #ff0000 75%, #ffffff 75%);
+    background-size: 10px 10px;
+    border-radius: 50% 50% 40% 40%;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.character.candy::after {
+    content: '🍬';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 2rem;
+}
+
+.game-btn {
+    padding: 15px 40px;
+    font-family: 'Mountains of Christmas', cursive;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--snow-white);
+    background: linear-gradient(135deg, var(--christmas-red) 0%, var(--christmas-red-dark) 100%);
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 6px 20px rgba(196, 30, 58, 0.4);
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+}
+
+.game-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 8px 30px rgba(196, 30, 58, 0.6);
+}
+
+.game-btn:active {
+    transform: scale(0.98);
+}
+
+.game-btn:disabled {
+    background: linear-gradient(135deg, #666 0%, #444 100%);
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+.game-buttons {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.game-btn.stop-btn {
+    background: linear-gradient(135deg, #666 0%, #444 100%);
+    box-shadow: 0 6px 20px rgba(100, 100, 100, 0.4);
+}
+
+.game-btn.stop-btn:hover {
+    background: linear-gradient(135deg, #777 0%, #555 100%);
+    box-shadow: 0 8px 30px rgba(100, 100, 100, 0.6);
+}
+
+.game-message {
+    margin-top: 15px;
+    font-size: 1.2rem;
+    color: var(--christmas-gold);
+    min-height: 30px;
+    font-weight: 600;
+}
+
+@keyframes sparkleUp {
+    0% {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0) scale(1);
+    }
+    100% {
+        opacity: 0;
+        transform: translateX(-50%) translateY(-40px) scale(1.5);
+    }
+}
+
+/* Game responsive */
+@media (max-width: 480px) {
+    .game-board {
+        gap: 10px;
+        padding: 10px;
+        max-width: 320px;
+    }
+    
+    .game-stats {
+        gap: 15px;
+    }
+    
+    .stat {
+        padding: 10px 18px;
+        min-width: 75px;
+    }
+    
+    .stat-value {
+        font-size: 1.5rem;
+    }
 }
 
 /* Gallery Section */
 .gallery {
     margin-top: 20px;
+    padding: 0 10px;
 }
 
 .gallery h2 {
@@ -125,6 +634,50 @@ main {
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
 }
 
+/* Gallery Scroll Container */
+.gallery-scroll-container {
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+    padding: 20px 0;
+}
+
+/* Gallery Rows - Left/Right Layout */
+.gallery-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 30px;
+    padding: 0 20px;
+    will-change: transform, opacity;
+    transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+
+.gallery-item {
+    flex: 1;
+    max-width: 48%;
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+    will-change: transform;
+    transition: transform 0.1s linear;
+}
+
+.gallery-item.left {
+    transform-origin: left center;
+}
+
+.gallery-item.right {
+    transform-origin: right center;
+}
+
+/* Parallax offset classes applied by JS */
+.gallery-item[data-parallax] {
+    transition: transform 0.15s ease-out;
+    -webkit-transition: -webkit-transform 0.15s ease-out;
+}
+
+
+/* Legacy grid fallback - no longer used but kept for reference */
 .gallery-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -134,12 +687,14 @@ main {
 
 /* Image Cards */
 .image-card {
-    background: rgba(0, 30, 15, 0.85);
+    background: rgba(10, 22, 40, 0.85);
     border-radius: 20px;
     padding: 15px;
     border: 2px solid var(--card-border);
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
 }
 
 .image-card:hover {
@@ -168,11 +723,22 @@ main {
     transform: scale(1.05);
 }
 
+/* Button Container - prevents layout shift */
+.button-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 118px; /* Reserve space for both buttons (44px min-height + 15px margin-top each = 59px × 2) */
+    position: relative;
+}
+
 /* Buttons */
 .christmasify-btn,
 .toggle-btn {
     margin-top: 15px;
     padding: 12px 28px;
+    /* Ensure minimum 44px touch target for iOS accessibility */
+    min-height: 44px;
     font-family: 'Mountains of Christmas', cursive;
     font-size: 1.2rem;
     font-weight: 700;
@@ -182,6 +748,9 @@ main {
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
+    /* iOS Safari touch optimizations */
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
 }
 
 .christmasify-btn {
@@ -229,6 +798,20 @@ main {
     display: none !important;
 }
 
+/* Image card buttons hidden - use visibility to prevent layout shift */
+.christmasify-btn.hidden,
+.toggle-btn.hidden {
+    display: block !important;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.christmasify-btn:not(.hidden),
+.toggle-btn:not(.hidden) {
+    visibility: visible;
+    pointer-events: auto;
+}
+
 /* Toggle Button Fade In Animation */
 .toggle-btn.fade-in {
     animation: fadeInUp 0.5s ease forwards;
@@ -259,12 +842,35 @@ footer {
 @media (max-width: 768px) {
     body {
         padding: 20px 15px;
+        /* iOS Safari safe area support for mobile */
+        padding-left: max(15px, env(safe-area-inset-left));
+        padding-right: max(15px, env(safe-area-inset-right));
+        padding-bottom: max(20px, env(safe-area-inset-bottom));
     }
 
     /* Disable expensive multi-shadow animation on mobile for iOS Safari performance */
     header h1 {
         animation: none;
         text-shadow: 3px 3px 0 var(--christmas-red-dark);
+    }
+
+    /* Aurora reduced on mobile */
+    body::before {
+        animation: none;
+        opacity: 0.4;
+    }
+
+    .gallery-row {
+        flex-direction: column;
+        gap: 20px;
+        padding: 0 10px;
+    }
+
+    .gallery-item {
+        max-width: 100%;
+        /* Disable parallax on mobile for smoother scrolling */
+        transform: none !important;
+        -webkit-transform: none !important;
     }
 
     .gallery-grid {
@@ -277,6 +883,46 @@ footer {
     .toggle-btn {
         padding: 10px 24px;
         font-size: 1.1rem;
+        /* Maintain minimum touch target on mobile */
+        min-height: 44px;
+    }
+
+    /* Christmas tree smaller on mobile */
+    .christmas-tree {
+        width: 80px;
+        height: 120px;
+        right: 10px;
+    }
+
+    .christmas-tree::before {
+        width: 14px;
+        height: 20px;
+    }
+
+    .christmas-tree::after {
+        bottom: 18px;
+        border-left: 40px solid transparent;
+        border-right: 40px solid transparent;
+        border-bottom: 100px solid var(--christmas-green-dark);
+    }
+
+    .tree-lights {
+        bottom: 20px;
+        right: 10px;
+        width: 80px;
+        height: 100px;
+    }
+
+    .tree-star {
+        bottom: 118px;
+        right: 42px;
+        width: 12px;
+        height: 12px;
+    }
+
+    /* Disable star glow animation on mobile for battery/performance */
+    .tree-star {
+        animation: none;
     }
 }
 

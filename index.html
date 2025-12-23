@@ -2,16 +2,21 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Merry Christmas!</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Mountains+of+Christmas:wght@400;700&family=Crimson+Pro:wght@400;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=6">
 </head>
 <body>
     <!-- Snow Canvas -->
     <canvas id="snow-canvas"></canvas>
+    
+    <!-- Christmas Tree Decoration -->
+    <div class="christmas-tree"></div>
+    <div class="tree-lights"></div>
+    <div class="tree-star"></div>
 
     <header>
         <h1>Merry Christmas!</h1>
@@ -21,61 +26,113 @@
     <main>
         <div id="countdown"></div>
 
+        <!-- Sora Video Section -->
+        <section class="video-section">
+            <h2>Holiday Video</h2>
+            <div class="video-container">
+                <video controls playsinline>
+                    <source src="photos/sorachristmasvideo.mp4" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+            </div>
+        </section>
+
+        <!-- Whack-a-Mole Game Section -->
+        <section class="game-section">
+            <h2>Holiday Whack-a-Mole!</h2>
+            <p class="game-subtitle">Tap the holiday characters as fast as you can!</p>
+            
+            <div class="game-stats">
+                <div class="stat">
+                    <span class="stat-label">Score</span>
+                    <span class="stat-value" id="game-score">0</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">Time</span>
+                    <span class="stat-value" id="game-timer">30</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">Best</span>
+                    <span class="stat-value" id="game-best">0</span>
+                </div>
+            </div>
+            
+            <div class="game-board" id="game-board">
+                <div class="mole-hole" data-hole="0">
+                    <div class="snow-mound"></div>
+                    <div class="character"></div>
+                </div>
+                <div class="mole-hole" data-hole="1">
+                    <div class="snow-mound"></div>
+                    <div class="character"></div>
+                </div>
+                <div class="mole-hole" data-hole="2">
+                    <div class="snow-mound"></div>
+                    <div class="character"></div>
+                </div>
+                <div class="mole-hole" data-hole="3">
+                    <div class="snow-mound"></div>
+                    <div class="character"></div>
+                </div>
+                <div class="mole-hole" data-hole="4">
+                    <div class="snow-mound"></div>
+                    <div class="character"></div>
+                </div>
+                <div class="mole-hole" data-hole="5">
+                    <div class="snow-mound"></div>
+                    <div class="character"></div>
+                </div>
+            </div>
+            
+            <div class="game-buttons">
+                <button class="game-btn" id="start-game">Start Game</button>
+                <button class="game-btn stop-btn hidden" id="stop-game">Stop Game</button>
+            </div>
+            <p class="game-message" id="game-message"></p>
+        </section>
+
         <section class="gallery">
             <h2>Family Memories</h2>
-            <div class="gallery-grid">
-                <!-- Image Card 1 -->
-                <div class="image-card" data-original="photos/hospitaloriginal.jpeg" data-christmas="photos/Gemini_hospital.png">
-                    <div class="image-container">
-                        <img src="photos/hospitaloriginal.jpeg" alt="Hospital Photo">
+            <div class="gallery-scroll-container" id="gallery-scroll">
+                <!-- Row 1 -->
+                <div class="gallery-row">
+                    <div class="gallery-item left" data-parallax="0.3">
+                        <div class="image-card" data-original="photos/hospitaloriginal.jpeg" data-christmas="photos/Gemini_hospital.png">
+                            <div class="image-container">
+                                <img src="photos/hospitaloriginal.jpeg" alt="Hospital Photo">
+                            </div>
+                            <div class="button-container">
+                                <button class="christmasify-btn">Christmasify?</button>
+                                <button class="toggle-btn hidden">Switch Image</button>
+                            </div>
+                        </div>
                     </div>
-                    <button class="christmasify-btn">Christmasify?</button>
-                    <button class="toggle-btn hidden">Switch Image</button>
+                    <div class="gallery-item right" data-parallax="0.6">
+                        <div class="image-card" data-original="photos/lakeLouiseOriginal.jpeg" data-christmas="photos/Gemini_LakeLouise.png">
+                            <div class="image-container">
+                                <img src="photos/lakeLouiseOriginal.jpeg" alt="Lake Louise Photo">
+                            </div>
+                            <div class="button-container">
+                                <button class="christmasify-btn">Christmasify?</button>
+                                <button class="toggle-btn hidden">Switch Image</button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
-                <!-- Image Card 2 -->
-                <div class="image-card" data-original="photos/lakeLouiseOriginal.jpeg" data-christmas="photos/Gemini_LakeLouise.png">
-                    <div class="image-container">
-                        <img src="photos/lakeLouiseOriginal.jpeg" alt="Lake Louise Photo">
+                <!-- Row 2 - Golden Gate Bridge -->
+                <div class="gallery-row">
+                    <div class="gallery-item left" data-parallax="0.5">
+                        <div class="image-card" data-original="photos/goldengatebridge.jpeg" data-christmas="photos/Gemini_goldengatebridge.png">
+                            <div class="image-container">
+                                <img src="photos/goldengatebridge.jpeg" alt="Golden Gate Bridge">
+                            </div>
+                            <div class="button-container">
+                                <button class="christmasify-btn">Christmasify?</button>
+                                <button class="toggle-btn hidden">Switch Image</button>
+                            </div>
+                        </div>
                     </div>
-                    <button class="christmasify-btn">Christmasify?</button>
-                    <button class="toggle-btn hidden">Switch Image</button>
-                </div>
-
-                <!-- Image Card 3 -->
-                <div class="image-card" data-original="https://picsum.photos/seed/family3/400/300" data-christmas="https://picsum.photos/seed/xmas3/400/300">
-                    <div class="image-container">
-                        <img src="https://picsum.photos/seed/family3/400/300" alt="Family Photo 3">
-                    </div>
-                    <button class="christmasify-btn">Christmasify?</button>
-                    <button class="toggle-btn hidden">Switch Image</button>
-                </div>
-
-                <!-- Image Card 4 -->
-                <div class="image-card" data-original="https://picsum.photos/seed/family4/400/300" data-christmas="https://picsum.photos/seed/xmas4/400/300">
-                    <div class="image-container">
-                        <img src="https://picsum.photos/seed/family4/400/300" alt="Family Photo 4">
-                    </div>
-                    <button class="christmasify-btn">Christmasify?</button>
-                    <button class="toggle-btn hidden">Switch Image</button>
-                </div>
-
-                <!-- Image Card 5 -->
-                <div class="image-card" data-original="https://picsum.photos/seed/family5/400/300" data-christmas="https://picsum.photos/seed/xmas5/400/300">
-                    <div class="image-container">
-                        <img src="https://picsum.photos/seed/family5/400/300" alt="Family Photo 5">
-                    </div>
-                    <button class="christmasify-btn">Christmasify?</button>
-                    <button class="toggle-btn hidden">Switch Image</button>
-                </div>
-
-                <!-- Image Card 6 -->
-                <div class="image-card" data-original="https://picsum.photos/seed/family6/400/300" data-christmas="https://picsum.photos/seed/xmas6/400/300">
-                    <div class="image-container">
-                        <img src="https://picsum.photos/seed/family6/400/300" alt="Family Photo 6">
-                    </div>
-                    <button class="christmasify-btn">Christmasify?</button>
-                    <button class="toggle-btn hidden">Switch Image</button>
                 </div>
             </div>
         </section>
@@ -85,6 +142,6 @@
         <p>&copy; 2025 Christmas Celebration</p>
     </footer>
 
-    <script src="script.js"></script>
+    <script src="script.js?v=7"></script>
 </body>
 </html>

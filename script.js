@@ -213,4 +213,308 @@ class ChristmasifyManager {
 // Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
     new ChristmasifyManager();
+    new WhackAMoleGame();
+    new GalleryParallax();
 });
+
+// ==========================================
+// Gallery Parallax Scroll Effect
+// ==========================================
+class GalleryParallax {
+    constructor() {
+        this.rows = document.querySelectorAll('.gallery-row');
+        this.items = document.querySelectorAll('.gallery-item[data-parallax]');
+        this.ticking = false;
+        this.lastScrollY = 0;
+        // Disable parallax on mobile for better iOS Safari performance
+        this.isMobile = window.innerWidth <= 768;
+        
+        this.init();
+    }
+    
+    init() {
+        // Skip parallax on mobile for better performance
+        if (this.isMobile) return;
+        
+        // Parallax scroll effect
+        this.setupParallaxScroll();
+    }
+    
+    setupParallaxScroll() {
+        // Throttled scroll handler for iOS Safari performance
+        const handleScroll = () => {
+            this.lastScrollY = window.scrollY;
+            
+            if (!this.ticking) {
+                requestAnimationFrame(() => {
+                    this.updateParallax();
+                    this.ticking = false;
+                });
+                this.ticking = true;
+            }
+        };
+        
+        // Use passive listener for better scroll performance
+        window.addEventListener('scroll', handleScroll, { passive: true });
+        
+        // Initial update
+        this.updateParallax();
+    }
+    
+    updateParallax() {
+        // Skip if mobile (double check)
+        if (this.isMobile) return;
+        
+        const windowHeight = window.innerHeight;
+        const scrollY = this.lastScrollY;
+        
+        this.items.forEach(item => {
+            const rect = item.getBoundingClientRect();
+            const parsed = parseFloat(item.dataset.parallax);
+            const parallaxFactor = isNaN(parsed) ? 0.5 : parsed;
+            
+            // Only apply parallax when item is visible
+            if (rect.top < windowHeight && rect.bottom > 0) {
+                // Calculate offset based on scroll position
+                const elementCenter = rect.top + rect.height / 2;
+                const distanceFromCenter = elementCenter - windowHeight / 2;
+                const offset = distanceFromCenter * parallaxFactor * 0.15;
+                
+                // Apply transform
+                item.style.transform = `translateY(${offset}px)`;
+                item.style.webkitTransform = `translateY(${offset}px)`;
+            }
+        });
+    }
+}
+
+// ==========================================
+// Whack-a-Mole Game (Safari iOS Optimized)
+// ==========================================
+class WhackAMoleGame {
+    constructor() {
+        this.score = 0;
+        this.timeLeft = 30;
+        this.bestScore = parseInt(localStorage.getItem('whackBestScore')) || 0;
+        this.isPlaying = false;
+        this.lastHole = -1;
+        this.animationId = null;
+        this.lastFrameTime = 0;
+        this.popInterval = 800; // ms between pops
+        this.lastPopTime = 0;
+        this.activeHoles = new Set();
+        
+        this.characters = ['snowman', 'reindeer', 'present', 'candy'];
+        
+        this.holes = document.querySelectorAll('.mole-hole');
+        this.scoreEl = document.getElementById('game-score');
+        this.timerEl = document.getElementById('game-timer');
+        this.bestEl = document.getElementById('game-best');
+        this.startBtn = document.getElementById('start-game');
+        this.stopBtn = document.getElementById('stop-game');
+        this.messageEl = document.getElementById('game-message');
+        
+        this.init();
+    }
+    
+    init() {
+        this.bestEl.textContent = this.bestScore;
+        
+        // Touch-optimized event listeners
+        this.holes.forEach(hole => {
+            const handler = (e) => {
+                e.preventDefault();
+                this.whack(hole);
+            };
+            
+            // Use both touch and click for cross-device support
+            hole.addEventListener('touchstart', handler, { passive: false });
+            hole.addEventListener('mousedown', handler);
+        });
+        
+        this.startBtn.addEventListener('click', () => this.startGame());
+        this.startBtn.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            this.startGame();
+        }, { passive: false });
+        
+        // Stop button listeners
+        this.stopBtn.addEventListener('click', () => this.stopGame());
+        this.stopBtn.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            this.stopGame();
+        }, { passive: false });
+    }
+    
+    stopGame() {
+        if (!this.isPlaying) return;
+        this.endGame(true); // Pass stopped flag
+    }
+    
+    startGame() {
+        if (this.isPlaying) return;
+        
+        this.isPlaying = true;
+        this.score = 0;
+        this.timeLeft = 30;
+        this.lastPopTime = 0;
+        this.activeHoles.clear();
+        
+        this.scoreEl.textContent = '0';
+        this.timerEl.textContent = '30';
+        this.messageEl.textContent = '';
+        this.startBtn.disabled = true;
+        this.startBtn.textContent = 'Playing...';
+        this.stopBtn.classList.remove('hidden');
+        
+        // Clear any existing characters
+        this.holes.forEach(hole => {
+            const char = hole.querySelector('.character');
+            char.className = 'character';
+        });
+        
+        // Start game loop using single RAF
+        this.lastFrameTime = performance.now();
+        this.gameLoop();
+        
+        // Timer countdown
+        this.timerInterval = setInterval(() => {
+            this.timeLeft--;
+            this.timerEl.textContent = this.timeLeft;
+            
+            // Speed up as time decreases
+            if (this.timeLeft <= 10) {
+                this.popInterval = 500;
+            } else if (this.timeLeft <= 20) {
+                this.popInterval = 650;
+            }
+            
+            if (this.timeLeft <= 0) {
+                this.endGame();
+            }
+        }, 1000);
+    }
+    
+    gameLoop() {
+        if (!this.isPlaying) return;
+        
+        const now = performance.now();
+        
+        // Pop new character based on interval
+        if (now - this.lastPopTime >= this.popInterval) {
+            this.popCharacter();
+            this.lastPopTime = now;
+        }
+        
+        this.animationId = requestAnimationFrame(() => this.gameLoop());
+    }
+    
+    popCharacter() {
+        // Don't pop if too many are active
+        if (this.activeHoles.size >= 3) return;
+        
+        // Pick a random hole that's not active and not the last one
+        let holeIndex;
+        let attempts = 0;
+        do {
+            holeIndex = Math.floor(Math.random() * this.holes.length);
+            attempts++;
+        } while ((this.activeHoles.has(holeIndex) || holeIndex === this.lastHole) && attempts < 10);
+        
+        if (this.activeHoles.has(holeIndex)) return;
+        
+        this.lastHole = holeIndex;
+        this.activeHoles.add(holeIndex);
+        
+        const hole = this.holes[holeIndex];
+        const character = hole.querySelector('.character');
+        
+        // Random character type
+        const charType = this.characters[Math.floor(Math.random() * this.characters.length)];
+        character.className = `character ${charType} active`;
+        
+        // Auto-hide after random time
+        const hideTime = Math.random() * 600 + 400; // 400-1000ms
+        setTimeout(() => {
+            if (character.classList.contains('active') && !character.classList.contains('whacked')) {
+                character.classList.remove('active');
+                this.activeHoles.delete(holeIndex);
+            }
+        }, hideTime);
+    }
+    
+    whack(hole) {
+        if (!this.isPlaying) return;
+        
+        const character = hole.querySelector('.character');
+        const holeIndex = parseInt(hole.dataset.hole);
+        
+        if (character.classList.contains('active') && !character.classList.contains('whacked')) {
+            // Success!
+            character.classList.add('whacked');
+            character.classList.remove('active');
+            
+            this.score++;
+            this.scoreEl.textContent = this.score;
+            this.activeHoles.delete(holeIndex);
+            
+            // Visual feedback
+            this.showHitEffect(hole);
+            
+            // Reset character after animation
+            setTimeout(() => {
+                character.className = 'character';
+            }, 300);
+        }
+    }
+    
+    showHitEffect(hole) {
+        // Create sparkle effect
+        const sparkle = document.createElement('div');
+        sparkle.className = 'hit-sparkle';
+        sparkle.innerHTML = '✨';
+        sparkle.style.cssText = `
+            position: absolute;
+            top: 20%;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 2rem;
+            z-index: 10;
+            animation: sparkleUp 0.5s ease-out forwards;
+            pointer-events: none;
+        `;
+        hole.appendChild(sparkle);
+        
+        setTimeout(() => sparkle.remove(), 500);
+    }
+    
+    endGame(stopped = false) {
+        this.isPlaying = false;
+        clearInterval(this.timerInterval);
+        cancelAnimationFrame(this.animationId);
+        this.popInterval = 800;
+        
+        // Hide all active characters
+        this.holes.forEach(hole => {
+            const char = hole.querySelector('.character');
+            char.className = 'character';
+        });
+        this.activeHoles.clear();
+        
+        // Set message based on how game ended
+        if (stopped) {
+            this.messageEl.textContent = `Game stopped! You scored ${this.score} points.`;
+        } else if (this.score > this.bestScore) {
+            this.bestScore = this.score;
+            this.bestEl.textContent = this.bestScore;
+            localStorage.setItem('whackBestScore', this.bestScore);
+            this.messageEl.textContent = `🎉 New Best Score: ${this.score}! 🎉`;
+        } else {
+            this.messageEl.textContent = `Game Over! You scored ${this.score} points!`;
+        }
+        
+        this.startBtn.disabled = false;
+        this.startBtn.textContent = 'Play Again';
+        this.stopBtn.classList.add('hidden');
+    }
+}
