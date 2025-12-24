@@ -598,6 +598,197 @@ main {
     }
 }
 
+/* ==========================================
+   Leaderboard Styles
+   ========================================== */
+.leaderboard {
+    margin-top: 30px;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.25);
+    border-radius: 20px;
+    border: 1px solid var(--card-border);
+}
+
+.leaderboard h3 {
+    font-family: 'Mountains of Christmas', cursive;
+    font-size: 1.6rem;
+    color: var(--christmas-gold);
+    margin-bottom: 15px;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.leaderboard-table {
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto;
+    border-collapse: collapse;
+}
+
+.leaderboard-table thead th {
+    font-family: 'Mountains of Christmas', cursive;
+    font-size: 1.1rem;
+    color: var(--aurora-blue);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 10px 15px;
+    border-bottom: 2px solid var(--card-border);
+}
+
+.leaderboard-table tbody td {
+    padding: 12px 15px;
+    font-size: 1rem;
+    color: var(--snow-white);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.leaderboard-table tbody tr:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.leaderboard-table tbody tr.empty-row td {
+    color: rgba(255, 255, 255, 0.5);
+    font-style: italic;
+    padding: 20px;
+}
+
+.leaderboard-table tbody tr.new-entry {
+    animation: highlightEntry 2s ease-out;
+}
+
+@keyframes highlightEntry {
+    0% {
+        background: rgba(212, 175, 55, 0.4);
+        transform: scale(1.02);
+    }
+    100% {
+        background: transparent;
+        transform: scale(1);
+    }
+}
+
+/* ==========================================
+   Name Entry Modal Styles
+   ========================================== */
+.name-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(10, 22, 40, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    animation: fadeIn 0.3s ease;
+}
+
+.name-modal-overlay.hidden {
+    display: none !important;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.name-modal {
+    background: linear-gradient(180deg, var(--winter-mid) 0%, var(--winter-dark) 100%);
+    border: 2px solid var(--christmas-gold);
+    border-radius: 25px;
+    padding: 35px 40px;
+    max-width: 400px;
+    width: 90%;
+    text-align: center;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 30px rgba(212, 175, 55, 0.2);
+    animation: modalSlideIn 0.3s ease;
+}
+
+@keyframes modalSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.name-modal h3 {
+    font-family: 'Mountains of Christmas', cursive;
+    font-size: 2rem;
+    color: var(--christmas-gold);
+    margin-bottom: 10px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.name-modal .modal-score {
+    font-size: 1.3rem;
+    color: var(--snow-white);
+    margin-bottom: 20px;
+}
+
+.name-modal .modal-score span {
+    font-family: 'Mountains of Christmas', cursive;
+    font-size: 1.8rem;
+    color: var(--christmas-gold-light);
+    font-weight: 700;
+}
+
+.name-modal .modal-prompt {
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.8);
+    margin-bottom: 15px;
+}
+
+.name-modal input[type="text"] {
+    width: 100%;
+    padding: 14px 20px;
+    font-family: 'Crimson Pro', Georgia, serif;
+    font-size: 1.2rem;
+    color: var(--snow-white);
+    background: rgba(0, 0, 0, 0.3);
+    border: 2px solid var(--card-border);
+    border-radius: 15px;
+    margin-bottom: 20px;
+    text-align: center;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.name-modal input[type="text"]:focus {
+    outline: none;
+    border-color: var(--christmas-gold);
+    box-shadow: 0 0 15px rgba(212, 175, 55, 0.3);
+}
+
+.name-modal input[type="text"]::placeholder {
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.modal-buttons {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.modal-buttons .game-btn {
+    padding: 12px 30px;
+    font-size: 1.2rem;
+}
+
+.modal-buttons .modal-skip {
+    background: linear-gradient(135deg, #555 0%, #333 100%);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.modal-buttons .modal-skip:hover {
+    background: linear-gradient(135deg, #666 0%, #444 100%);
+}
+
 /* Game responsive */
 @media (max-width: 480px) {
     .game-board {
@@ -617,6 +808,45 @@ main {
     
     .stat-value {
         font-size: 1.5rem;
+    }
+    
+    .leaderboard {
+        padding: 15px;
+    }
+    
+    .leaderboard h3 {
+        font-size: 1.4rem;
+    }
+    
+    .leaderboard-table thead th {
+        font-size: 0.95rem;
+        padding: 8px 10px;
+    }
+    
+    .leaderboard-table tbody td {
+        padding: 10px;
+        font-size: 0.95rem;
+    }
+    
+    .name-modal {
+        padding: 25px 20px;
+    }
+    
+    .name-modal h3 {
+        font-size: 1.6rem;
+    }
+    
+    .name-modal .modal-score {
+        font-size: 1.1rem;
+    }
+    
+    .name-modal .modal-score span {
+        font-size: 1.5rem;
+    }
+    
+    .modal-buttons .game-btn {
+        padding: 10px 24px;
+        font-size: 1.1rem;
     }
 }
 

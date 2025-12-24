@@ -303,6 +303,9 @@ class WhackAMoleGame {
         this.popInterval = 800; // ms between pops
         this.lastPopTime = 0;
         this.activeHoles = new Set();
+        this.leaderboard = this.loadLeaderboard();
+        this.newEntryIndex = -1;
+        this.highlightTimeoutId = null;
         
         this.characters = ['snowman', 'reindeer', 'present', 'candy'];
         
@@ -314,11 +317,33 @@ class WhackAMoleGame {
         this.stopBtn = document.getElementById('stop-game');
         this.messageEl = document.getElementById('game-message');
         
+        // Leaderboard elements
+        this.leaderboardBody = document.getElementById('leaderboard-body');
+        this.nameModal = document.getElementById('name-modal');
+        this.playerNameInput = document.getElementById('player-name-input');
+        this.modalScoreValue = document.getElementById('modal-score-value');
+        this.submitScoreBtn = document.getElementById('submit-score');
+        this.skipScoreBtn = document.getElementById('skip-score');
+        
         this.init();
+    }
+    
+    loadLeaderboard() {
+        try {
+            const data = localStorage.getItem('whackLeaderboard');
+            return data ? JSON.parse(data) : [];
+        } catch (e) {
+            return [];
+        }
+    }
+    
+    saveLeaderboard() {
+        localStorage.setItem('whackLeaderboard', JSON.stringify(this.leaderboard));
     }
     
     init() {
         this.bestEl.textContent = this.bestScore;
+        this.renderLeaderboard();
         
         // Touch-optimized event listeners
         this.holes.forEach(hole => {
@@ -344,6 +369,98 @@ class WhackAMoleGame {
             e.preventDefault();
             this.stopGame();
         }, { passive: false });
+        
+        // Modal listeners
+        this.submitScoreBtn.addEventListener('click', () => this.submitScore());
+        this.skipScoreBtn.addEventListener('click', () => this.hideModal());
+        this.playerNameInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                this.submitScore();
+            }
+        });
+    }
+    
+    renderLeaderboard() {
+        if (this.leaderboard.length === 0) {
+            this.leaderboardBody.innerHTML = `
+                <tr class="empty-row">
+                    <td colspan="3">No scores yet - be the first!</td>
+                </tr>
+            `;
+            return;
+        }
+        
+        this.leaderboardBody.innerHTML = this.leaderboard
+            .slice(0, 10)
+            .map((entry, index) => {
+                const rankEmoji = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `${index + 1}`;
+                const isNew = index === this.newEntryIndex;
+                return `
+                    <tr class="${isNew ? 'new-entry' : ''}">
+                        <td>${rankEmoji}</td>
+                        <td>${this.escapeHtml(entry.name)}</td>
+                        <td>${entry.score}</td>
+                    </tr>
+                `;
+            })
+            .join('');
+        
+        // Clear highlight after animation
+        if (this.newEntryIndex >= 0) {
+            // Clear any pending timeout to prevent premature highlight removal
+            if (this.highlightTimeoutId) {
+                clearTimeout(this.highlightTimeoutId);
+            }
+            this.highlightTimeoutId = setTimeout(() => {
+                this.newEntryIndex = -1;
+                this.highlightTimeoutId = null;
+            }, 2000);
+        }
+    }
+    
+    escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+    
+    showModal() {
+        this.modalScoreValue.textContent = this.score;
+        this.playerNameInput.value = localStorage.getItem('whackPlayerName') || '';
+        this.nameModal.classList.remove('hidden');
+        setTimeout(() => this.playerNameInput.focus(), 100);
+    }
+    
+    hideModal() {
+        this.nameModal.classList.add('hidden');
+        this.playerNameInput.value = '';
+    }
+    
+    submitScore() {
+        const name = this.playerNameInput.value.trim() || 'Anonymous';
+        
+        // Save name for next time
+        localStorage.setItem('whackPlayerName', name);
+        
+        // Add to leaderboard
+        const newEntry = {
+            name: name,
+            score: this.score,
+            date: new Date().toISOString().split('T')[0]
+        };
+        
+        this.leaderboard.push(newEntry);
+        this.leaderboard.sort((a, b) => b.score - a.score);
+        this.leaderboard = this.leaderboard.slice(0, 10); // Keep top 10
+        
+        // Find the index of the new entry for highlighting
+        this.newEntryIndex = this.leaderboard.findIndex(
+            e => e.name === newEntry.name && e.score === newEntry.score && e.date === newEntry.date
+        );
+        
+        this.saveLeaderboard();
+        this.renderLeaderboard();
+        this.hideModal();
     }
     
     stopGame() {
@@ -501,20 +618,27 @@ class WhackAMoleGame {
         });
         this.activeHoles.clear();
         
-        // Set message based on how game ended
-        if (stopped) {
-            this.messageEl.textContent = `Game stopped! You scored ${this.score} points.`;
-        } else if (this.score > this.bestScore) {
+        // Update best score if needed
+        if (!stopped && this.score > this.bestScore) {
             this.bestScore = this.score;
             this.bestEl.textContent = this.bestScore;
             localStorage.setItem('whackBestScore', this.bestScore);
-            this.messageEl.textContent = `🎉 New Best Score: ${this.score}! 🎉`;
+        }
+        
+        // Set message based on how game ended
+        if (stopped) {
+            this.messageEl.textContent = `Game stopped! You scored ${this.score} points.`;
         } else {
-            this.messageEl.textContent = `Game Over! You scored ${this.score} points!`;
+            this.messageEl.textContent = '';
         }
         
         this.startBtn.disabled = false;
         this.startBtn.textContent = 'Play Again';
         this.stopBtn.classList.add('hidden');
+        
+        // Show name entry modal if game completed naturally and score > 0
+        if (!stopped && this.score > 0) {
+            this.showModal();
+        }
     }
 }
