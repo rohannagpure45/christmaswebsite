@@ -1058,6 +1058,34 @@ main {
     }
 }
 
+/* Hospital Photo Special Message */
+.hospital-message {
+    margin-top: 15px;
+    padding: 15px 25px;
+    background: linear-gradient(135deg, rgba(22, 101, 52, 0.9) 0%, rgba(20, 83, 45, 0.95) 100%);
+    border-radius: 15px;
+    border: 2px solid var(--christmas-gold);
+    box-shadow: 0 4px 20px rgba(212, 175, 55, 0.3), inset 0 0 15px rgba(255, 255, 255, 0.05);
+    text-align: center;
+}
+
+.hospital-message p {
+    font-family: 'Mountains of Christmas', cursive;
+    font-size: 1.3rem;
+    color: var(--christmas-gold-light);
+    margin: 5px 0;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.hospital-message p:first-child {
+    font-size: 1.4rem;
+    font-weight: 700;
+}
+
+.hospital-message.fade-in {
+    animation: fadeInUp 0.6s ease forwards;
+}
+
 /* Footer */
 footer {
     position: relative;

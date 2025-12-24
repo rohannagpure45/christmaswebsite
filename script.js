@@ -184,6 +184,15 @@ class ChristmasifyManager {
             
             // Hide christmasify button
             christmasifyBtn.classList.add('hidden');
+            
+            // Show hospital message if this is the hospital photo
+            if (card.dataset.original.includes('hospitaloriginal')) {
+                const hospitalMessage = card.querySelector('.hospital-message');
+                if (hospitalMessage) {
+                    hospitalMessage.classList.remove('hidden');
+                    hospitalMessage.classList.add('fade-in');
+                }
+            }
         }, 500);
         
         // Show toggle button after 5 seconds
@@ -206,6 +215,22 @@ class ChristmasifyManager {
         setTimeout(() => {
             card.dataset.isChristmasified = isChristmasified ? 'false' : 'true';
             this.loadImage(img, targetUrl, container);
+            
+            // Toggle hospital message visibility if this is the hospital photo
+            if (card.dataset.original.includes('hospitaloriginal')) {
+                const hospitalMessage = card.querySelector('.hospital-message');
+                if (hospitalMessage) {
+                    if (isChristmasified) {
+                        // Switching to original - hide message
+                        hospitalMessage.classList.add('hidden');
+                        hospitalMessage.classList.remove('fade-in');
+                    } else {
+                        // Switching to Christmas - show message
+                        hospitalMessage.classList.remove('hidden');
+                        hospitalMessage.classList.add('fade-in');
+                    }
+                }
+            }
         }, 500);
     }
 }
