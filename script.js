@@ -9,6 +9,8 @@ class ChristmasMusic {
         this.isPlaying = false;
         this.isToggling = false; // Prevent double-firing
         this.volume = 0.15; // Low/timid volume
+        this.audioContext = null; // Web Audio API context for iOS unlock
+        this.audioUnlocked = false; // Track if audio has been unlocked
         
         // Load user preference
         this.userMuted = localStorage.getItem('christmasMusicMuted') === 'true';
@@ -16,13 +18,73 @@ class ChristmasMusic {
         this.init();
     }
     
-    init() {
-        // Set volume and load audio (needed for iOS)
-        this.audio.volume = this.volume;
-        this.audio.load();
+    // Unlock audio for iOS - creates AudioContext and plays silent buffer
+    // This bypasses the iOS mute switch and enables audio playback
+    unlockAudio() {
+        if (this.audioUnlocked) return Promise.resolve();
         
-        const handleToggle = (e) => {
-            e.stopPropagation();
+        try {
+            // Create AudioContext (with webkit prefix for older iOS)
+            const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+            if (!AudioContextClass) return Promise.resolve();
+            
+            this.audioContext = new AudioContextClass();
+            
+            // Create and play a silent buffer to unlock audio
+            const buffer = this.audioContext.createBuffer(1, 1, 22050);
+            const source = this.audioContext.createBufferSource();
+            source.buffer = buffer;
+            source.connect(this.audioContext.destination);
+            source.start(0);
+            
+            // Resume context if suspended (required for iOS)
+            if (this.audioContext.state === 'suspended') {
+                return this.audioContext.resume().then(() => {
+                    this.audioUnlocked = true;
+                    console.log('Audio context unlocked');
+                });
+            }
+            
+            this.audioUnlocked = true;
+            console.log('Audio context unlocked');
+            return Promise.resolve();
+        } catch (e) {
+            console.log('AudioContext unlock failed:', e);
+            return Promise.resolve();
+        }
+    }
+    
+    init() {
+        // Set volume
+        this.audio.volume = this.volume;
+        
+        // Track audio ready state
+        this.audioReady = false;
+        
+        // Listen for when audio is ready to play through
+        this.audio.addEventListener('canplaythrough', () => {
+            this.audioReady = true;
+            console.log('Audio ready to play through');
+        });
+        
+        // Handle audio errors
+        this.audio.addEventListener('error', (e) => {
+            console.log('Audio error:', e);
+        });
+        
+        // Track actual playing state (more reliable than promise)
+        this.audio.addEventListener('playing', () => {
+            this.isPlaying = true;
+            this.updateUI();
+            console.log('Audio is now playing');
+        });
+        
+        this.audio.addEventListener('pause', () => {
+            this.isPlaying = false;
+            this.updateUI();
+        });
+        
+        const handleToggle = () => {
             if (this.isToggling) return;
             this.isToggling = true;
             this.toggle();
@@ -34,11 +96,16 @@ class ChristmasMusic {
         
         // Auto-play on first user interaction (if not previously muted)
         if (!this.userMuted) {
-            const autoPlay = () => {
+            const autoPlay = (e) => {
+                // Skip if user clicked the toggle button - it handles its own playback
+                if (this.toggleBtn.contains(e.target)) {
+                    document.removeEventListener('click', autoPlay);
+                    return;
+                }
                 this.play();
                 document.removeEventListener('click', autoPlay);
             };
-            document.addEventListener('click', autoPlay, { once: true });
+            document.addEventListener('click', autoPlay);
         }
         
         // Update button state
@@ -46,19 +113,23 @@ class ChristmasMusic {
     }
     
     play() {
-        const playPromise = this.audio.play();
-        
-        if (playPromise !== undefined) {
-            playPromise.then(() => {
-                this.isPlaying = true;
-                this.updateUI();
-            }).catch(err => {
-                console.log('Music play failed:', err.message);
-                // Try again on next user interaction
-                this.isPlaying = false;
-                this.updateUI();
-            });
-        }
+        // Unlock audio first (iOS requirement), then play
+        this.unlockAudio().then(() => {
+            const playPromise = this.audio.play();
+            
+            if (playPromise !== undefined) {
+                playPromise.then(() => {
+                    this.isPlaying = true;
+                    this.updateUI();
+                    console.log('Music playback started');
+                }).catch(err => {
+                    console.log('Music play failed:', err.message);
+                    // Try again on next user interaction
+                    this.isPlaying = false;
+                    this.updateUI();
+                });
+            }
+        });
     }
     
     pause() {
