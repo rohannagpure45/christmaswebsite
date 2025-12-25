@@ -7,7 +7,6 @@ class ChristmasMusic {
         this.toggleBtn = document.getElementById('music-toggle');
         this.statusEl = this.toggleBtn.querySelector('.music-status');
         this.isPlaying = false;
-        this.hasInteracted = false;
         this.volume = 0.15; // Low/timid volume
         
         // Load user preference
@@ -20,36 +19,36 @@ class ChristmasMusic {
         // Set volume
         this.audio.volume = this.volume;
         
-        // Toggle button click
-        this.toggleBtn.addEventListener('click', () => this.toggle());
+        // Toggle button click - use both click and touchstart for reliability
+        this.toggleBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            this.toggle();
+        });
         
-        // Handle first user interaction to enable autoplay
-        if (!this.userMuted) {
-            const startOnInteraction = () => {
-                if (!this.hasInteracted) {
-                    this.hasInteracted = true;
-                    this.play();
-                }
-            };
-            
-            // Listen for any user interaction
-            ['click', 'touchstart', 'keydown'].forEach(event => {
-                document.addEventListener(event, startOnInteraction, { once: true, passive: true });
-            });
-        }
+        this.toggleBtn.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            this.toggle();
+        }, { passive: false });
         
         // Update button state
         this.updateUI();
     }
     
     play() {
-        this.audio.play().then(() => {
-            this.isPlaying = true;
-            this.updateUI();
-        }).catch(err => {
-            // Autoplay was blocked, wait for user interaction
-            console.log('Music autoplay blocked, waiting for user interaction');
-        });
+        const playPromise = this.audio.play();
+        
+        if (playPromise !== undefined) {
+            playPromise.then(() => {
+                this.isPlaying = true;
+                this.updateUI();
+            }).catch(err => {
+                console.log('Music play failed:', err.message);
+                // Try again on next user interaction
+                this.isPlaying = false;
+                this.updateUI();
+            });
+        }
     }
     
     pause() {
@@ -59,8 +58,6 @@ class ChristmasMusic {
     }
     
     toggle() {
-        this.hasInteracted = true;
-        
         if (this.isPlaying) {
             this.pause();
             localStorage.setItem('christmasMusicMuted', 'true');
@@ -80,9 +77,6 @@ class ChristmasMusic {
         }
     }
 }
-
-// Initialize music player
-new ChristmasMusic();
 
 // ==========================================
 // Christmas Countdown Timer
@@ -323,6 +317,7 @@ class ChristmasifyManager {
 
 // Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
+    new ChristmasMusic();
     new ChristmasifyManager();
     new WhackAMoleGame();
     new GalleryParallax();
