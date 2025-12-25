@@ -213,7 +213,31 @@ new Snowfall();
 class ChristmasifyManager {
     constructor() {
         this.imageCards = document.querySelectorAll('.image-card');
+        this.preloadedImages = []; // Keep references to prevent garbage collection
         this.init();
+        this.preloadChristmasImages();
+    }
+    
+    // Preload all Christmas images in background for instant switching
+    preloadChristmasImages() {
+        this.imageCards.forEach(card => {
+            const christmasUrl = card.dataset.christmas;
+            const originalUrl = card.dataset.original;
+            
+            // Preload Christmas version
+            if (christmasUrl) {
+                const img = new Image();
+                img.src = christmasUrl;
+                this.preloadedImages.push(img);
+            }
+            
+            // Preload original version (for switching back)
+            if (originalUrl) {
+                const img = new Image();
+                img.src = originalUrl;
+                this.preloadedImages.push(img);
+            }
+        });
     }
     
     loadImage(img, url, container) {
