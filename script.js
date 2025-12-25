@@ -22,6 +22,7 @@ class ChristmasMusic {
         
         const handleToggle = (e) => {
             e.preventDefault();
+            e.stopPropagation();
             if (this.isToggling) return;
             this.isToggling = true;
             this.toggle();
