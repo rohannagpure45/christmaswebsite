@@ -7,6 +7,7 @@ class ChristmasMusic {
         this.toggleBtn = document.getElementById('music-toggle');
         this.statusEl = this.toggleBtn.querySelector('.music-status');
         this.isPlaying = false;
+        this.isToggling = false; // Prevent double-firing
         this.volume = 0.15; // Low/timid volume
         
         // Load user preference
@@ -19,12 +20,30 @@ class ChristmasMusic {
         // Set volume
         this.audio.volume = this.volume;
         
-        // Toggle button click
-        this.toggleBtn.addEventListener('click', (e) => {
+        const handleToggle = (e) => {
             e.preventDefault();
-            e.stopPropagation();
+            if (this.isToggling) return;
+            this.isToggling = true;
             this.toggle();
-        });
+            // Reset flag after a short delay
+            setTimeout(() => { this.isToggling = false; }, 300);
+        };
+        
+        // touchstart for iOS (reliable user activation)
+        this.toggleBtn.addEventListener('touchstart', handleToggle, { passive: false });
+        // click for desktop/mouse
+        this.toggleBtn.addEventListener('click', handleToggle);
+        
+        // Auto-play on first user interaction (if not previously muted)
+        if (!this.userMuted) {
+            const autoPlay = () => {
+                this.play();
+                document.removeEventListener('click', autoPlay);
+                document.removeEventListener('touchstart', autoPlay);
+            };
+            document.addEventListener('click', autoPlay, { once: true });
+            document.addEventListener('touchstart', autoPlay, { once: true });
+        }
         
         // Update button state
         this.updateUI();
