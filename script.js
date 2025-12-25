@@ -1,5 +1,5 @@
 // ==========================================
-// Christmas Background Music
+// Christmas Background Music (iOS Safari Compatible)
 // ==========================================
 class ChristmasMusic {
     constructor() {
@@ -7,10 +7,13 @@ class ChristmasMusic {
         this.toggleBtn = document.getElementById('music-toggle');
         this.statusEl = this.toggleBtn.querySelector('.music-status');
         this.isPlaying = false;
-        this.isToggling = false; // Prevent double-firing
+        this.isToggling = false; // Debounce flag to prevent race conditions
         this.volume = 0.15; // Low/timid volume
-        this.audioContext = null; // Web Audio API context for iOS unlock
-        this.audioUnlocked = false; // Track if audio has been unlocked
+        
+        // Web Audio API for iOS Safari compatibility
+        this.audioContext = null;
+        this.track = null; // MediaElementSource - connects audio to Web Audio API
+        this.isSetup = false;
         
         // Load user preference
         this.userMuted = localStorage.getItem('christmasMusicMuted') === 'true';
@@ -18,65 +21,40 @@ class ChristmasMusic {
         this.init();
     }
     
-    // Unlock audio for iOS - creates AudioContext and plays silent buffer
-    // This bypasses the iOS mute switch and enables audio playback
-    unlockAudio() {
-        if (this.audioUnlocked) return Promise.resolve();
+    // Setup Web Audio API connection - MUST be called during user gesture
+    // This is the key to iOS Safari audio: connect the audio element to AudioContext
+    setupAudio() {
+        if (this.isSetup) return;
         
         try {
-            // Create AudioContext (with webkit prefix for older iOS)
             const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-            if (!AudioContextClass) return Promise.resolve();
+            if (!AudioContextClass) {
+                console.log('Web Audio API not supported');
+                return;
+            }
             
             this.audioContext = new AudioContextClass();
             
-            // Create and play a silent buffer to unlock audio
-            const buffer = this.audioContext.createBuffer(1, 1, 22050);
-            const source = this.audioContext.createBufferSource();
-            source.buffer = buffer;
-            source.connect(this.audioContext.destination);
-            source.start(0);
+            // KEY FOR iOS: Connect the HTML audio element to the AudioContext
+            // This routes the audio through Web Audio API, which iOS respects
+            this.track = this.audioContext.createMediaElementSource(this.audio);
+            this.track.connect(this.audioContext.destination);
             
-            // Resume context if suspended (required for iOS)
-            if (this.audioContext.state === 'suspended') {
-                return this.audioContext.resume().then(() => {
-                    this.audioUnlocked = true;
-                    console.log('Audio context unlocked');
-                });
-            }
-            
-            this.audioUnlocked = true;
-            console.log('Audio context unlocked');
-            return Promise.resolve();
+            this.isSetup = true;
+            console.log('Audio setup complete - connected to Web Audio API');
         } catch (e) {
-            console.log('AudioContext unlock failed:', e);
-            return Promise.resolve();
+            console.log('Audio setup failed:', e);
         }
     }
     
     init() {
-        // Set volume
+        // Set volume (note: iOS ignores volume control, but works on other platforms)
         this.audio.volume = this.volume;
         
-        // Track audio ready state
-        this.audioReady = false;
-        
-        // Listen for when audio is ready to play through
-        this.audio.addEventListener('canplaythrough', () => {
-            this.audioReady = true;
-            console.log('Audio ready to play through');
-        });
-        
-        // Handle audio errors
-        this.audio.addEventListener('error', (e) => {
-            console.log('Audio error:', e);
-        });
-        
-        // Track actual playing state (more reliable than promise)
+        // Track actual playing state via events (most reliable)
         this.audio.addEventListener('playing', () => {
             this.isPlaying = true;
             this.updateUI();
-            console.log('Audio is now playing');
         });
         
         this.audio.addEventListener('pause', () => {
@@ -84,15 +62,18 @@ class ChristmasMusic {
             this.updateUI();
         });
         
-        const handleToggle = () => {
+        this.audio.addEventListener('ended', () => {
+            this.isPlaying = false;
+            this.updateUI();
+        });
+        
+        // Toggle button click handler with debounce to prevent race conditions
+        this.toggleBtn.addEventListener('click', () => {
             if (this.isToggling) return;
             this.isToggling = true;
             this.toggle();
             setTimeout(() => { this.isToggling = false; }, 300);
-        };
-        
-        // Use only click - most reliable user activation for iOS audio
-        this.toggleBtn.addEventListener('click', handleToggle);
+        });
         
         // Auto-play on first user interaction (if not previously muted)
         if (!this.userMuted) {
@@ -108,34 +89,44 @@ class ChristmasMusic {
             document.addEventListener('click', autoPlay);
         }
         
-        // Update button state
+        // Update initial button state
         this.updateUI();
     }
     
     play() {
-        // Unlock audio first (iOS requirement), then play
-        this.unlockAudio().then(() => {
-            const playPromise = this.audio.play();
-            
-            if (playPromise !== undefined) {
-                playPromise.then(() => {
-                    this.isPlaying = true;
-                    this.updateUI();
-                    console.log('Music playback started');
-                }).catch(err => {
-                    console.log('Music play failed:', err.message);
-                    // Try again on next user interaction
-                    this.isPlaying = false;
-                    this.updateUI();
-                });
-            }
-        });
+        // Setup Web Audio API connection on first play (requires user gesture)
+        this.setupAudio();
+        
+        // Resume AudioContext if suspended (iOS Safari suspends by default)
+        if (this.audioContext && this.audioContext.state === 'suspended') {
+            this.audioContext.resume().then(() => {
+                console.log('AudioContext resumed');
+                this.startPlayback();
+            }).catch(err => {
+                console.log('AudioContext resume failed:', err);
+                this.startPlayback(); // Try anyway
+            });
+        } else {
+            this.startPlayback();
+        }
+    }
+    
+    startPlayback() {
+        const playPromise = this.audio.play();
+        
+        if (playPromise !== undefined) {
+            playPromise.then(() => {
+                console.log('Audio playback started');
+            }).catch(err => {
+                console.log('Audio play failed:', err.message);
+                this.isPlaying = false;
+                this.updateUI();
+            });
+        }
     }
     
     pause() {
         this.audio.pause();
-        this.isPlaying = false;
-        this.updateUI();
     }
     
     toggle() {
