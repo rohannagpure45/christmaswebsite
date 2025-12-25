@@ -400,7 +400,9 @@ main {
     width: 100%;
     height: auto;
     display: block;
-    background: #000;
+    /* Gradient background provides immediate visual while video loads */
+    background: linear-gradient(135deg, var(--winter-dark) 0%, var(--christmas-green-dark) 50%, var(--winter-mid) 100%);
+    min-height: 200px;
 }
 
 /* Video Loading State */

@@ -506,6 +506,7 @@ class WhackAMoleGame {
         this.leaderboard = this.loadLeaderboard();
         this.newEntryIndex = -1;
         this.highlightTimeoutId = null;
+        this.isGameSectionVisible = true; // Track visibility for modal display
         
         this.characters = ['snowman', 'reindeer', 'present', 'candy', 'komal', 'rohan', 'ram', 'keerti'];
         
@@ -516,6 +517,7 @@ class WhackAMoleGame {
         this.startBtn = document.getElementById('start-game');
         this.stopBtn = document.getElementById('stop-game');
         this.messageEl = document.getElementById('game-message');
+        this.gameSection = document.querySelector('.game-section');
         
         // Leaderboard elements
         this.leaderboardBody = document.getElementById('leaderboard-body');
@@ -525,7 +527,41 @@ class WhackAMoleGame {
         this.submitScoreBtn = document.getElementById('submit-score');
         this.skipScoreBtn = document.getElementById('skip-score');
         
+        // Preload headshot images for faster game performance
+        this.preloadHeadshots();
+        
         this.init();
+    }
+    
+    preloadHeadshots() {
+        const headshots = [
+            'photos/KomalHeadshot.png',
+            'photos/Rohanheadshot.png',
+            'photos/ramheadshot.png',
+            'photos/keertiheadshot.png'
+        ];
+        headshots.forEach(src => {
+            const img = new Image();
+            img.src = src;
+        });
+    }
+    
+    setupVisibilityObserver() {
+        // Only show modal if game section is visible when game ends
+        if (!this.gameSection || !('IntersectionObserver' in window)) {
+            this.isGameSectionVisible = true; // Fallback: always show
+            return;
+        }
+        
+        this.visibilityObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                this.isGameSectionVisible = entry.isIntersecting;
+            });
+        }, {
+            threshold: 0.3 // At least 30% of game section must be visible
+        });
+        
+        this.visibilityObserver.observe(this.gameSection);
     }
     
     loadLeaderboard() {
@@ -544,6 +580,9 @@ class WhackAMoleGame {
     init() {
         this.bestEl.textContent = this.bestScore;
         this.renderLeaderboard();
+        
+        // Set up Intersection Observer to track game section visibility
+        this.setupVisibilityObserver();
         
         // Touch-optimized event listeners
         this.holes.forEach(hole => {
@@ -836,8 +875,8 @@ class WhackAMoleGame {
         this.startBtn.textContent = 'Play Again';
         this.stopBtn.classList.add('hidden');
         
-        // Show name entry modal if game completed naturally and score > 0
-        if (!stopped && this.score > 0) {
+        // Show name entry modal if game completed naturally, score > 0, and game section is visible
+        if (!stopped && this.score > 0 && this.isGameSectionVisible) {
             this.showModal();
         }
     }
