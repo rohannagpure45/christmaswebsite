@@ -17,22 +17,19 @@ class ChristmasMusic {
     }
     
     init() {
-        // Set volume
+        // Set volume and load audio (needed for iOS)
         this.audio.volume = this.volume;
+        this.audio.load();
         
         const handleToggle = (e) => {
-            e.preventDefault();
             e.stopPropagation();
             if (this.isToggling) return;
             this.isToggling = true;
             this.toggle();
-            // Reset flag after a short delay
             setTimeout(() => { this.isToggling = false; }, 300);
         };
         
-        // touchstart for iOS (reliable user activation)
-        this.toggleBtn.addEventListener('touchstart', handleToggle, { passive: false });
-        // click for desktop/mouse
+        // Use only click - most reliable user activation for iOS audio
         this.toggleBtn.addEventListener('click', handleToggle);
         
         // Auto-play on first user interaction (if not previously muted)
@@ -40,10 +37,8 @@ class ChristmasMusic {
             const autoPlay = () => {
                 this.play();
                 document.removeEventListener('click', autoPlay);
-                document.removeEventListener('touchstart', autoPlay);
             };
             document.addEventListener('click', autoPlay, { once: true });
-            document.addEventListener('touchstart', autoPlay, { once: true });
         }
         
         // Update button state
