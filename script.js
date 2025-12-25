@@ -8,7 +8,6 @@ class ChristmasMusic {
         this.statusEl = this.toggleBtn.querySelector('.music-status');
         this.isPlaying = false;
         this.volume = 0.15; // Low/timid volume
-        this.lastToggleTime = 0; // Prevent iOS double-fire
         
         // Load user preference
         this.userMuted = localStorage.getItem('christmasMusicMuted') === 'true';
@@ -20,17 +19,12 @@ class ChristmasMusic {
         // Set volume
         this.audio.volume = this.volume;
         
-        // Toggle button click - use both click and touchstart for reliability
+        // Toggle button click
         this.toggleBtn.addEventListener('click', (e) => {
             e.preventDefault();
             e.stopPropagation();
             this.toggle();
         });
-        
-        this.toggleBtn.addEventListener('touchend', (e) => {
-            e.preventDefault();
-            this.toggle();
-        }, { passive: false });
         
         // Update button state
         this.updateUI();
@@ -59,11 +53,6 @@ class ChristmasMusic {
     }
     
     toggle() {
-        // Prevent double-firing on iOS (touchend + click)
-        const now = Date.now();
-        if (now - this.lastToggleTime < 300) return;
-        this.lastToggleTime = now;
-        
         if (this.isPlaying) {
             this.pause();
             localStorage.setItem('christmasMusicMuted', 'true');
