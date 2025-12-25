@@ -1,4 +1,90 @@
 // ==========================================
+// Christmas Background Music
+// ==========================================
+class ChristmasMusic {
+    constructor() {
+        this.audio = document.getElementById('christmas-music');
+        this.toggleBtn = document.getElementById('music-toggle');
+        this.statusEl = this.toggleBtn.querySelector('.music-status');
+        this.isPlaying = false;
+        this.hasInteracted = false;
+        this.volume = 0.15; // Low/timid volume
+        
+        // Load user preference
+        this.userMuted = localStorage.getItem('christmasMusicMuted') === 'true';
+        
+        this.init();
+    }
+    
+    init() {
+        // Set volume
+        this.audio.volume = this.volume;
+        
+        // Toggle button click
+        this.toggleBtn.addEventListener('click', () => this.toggle());
+        
+        // Handle first user interaction to enable autoplay
+        if (!this.userMuted) {
+            const startOnInteraction = () => {
+                if (!this.hasInteracted) {
+                    this.hasInteracted = true;
+                    this.play();
+                }
+            };
+            
+            // Listen for any user interaction
+            ['click', 'touchstart', 'keydown'].forEach(event => {
+                document.addEventListener(event, startOnInteraction, { once: true, passive: true });
+            });
+        }
+        
+        // Update button state
+        this.updateUI();
+    }
+    
+    play() {
+        this.audio.play().then(() => {
+            this.isPlaying = true;
+            this.updateUI();
+        }).catch(err => {
+            // Autoplay was blocked, wait for user interaction
+            console.log('Music autoplay blocked, waiting for user interaction');
+        });
+    }
+    
+    pause() {
+        this.audio.pause();
+        this.isPlaying = false;
+        this.updateUI();
+    }
+    
+    toggle() {
+        this.hasInteracted = true;
+        
+        if (this.isPlaying) {
+            this.pause();
+            localStorage.setItem('christmasMusicMuted', 'true');
+        } else {
+            this.play();
+            localStorage.setItem('christmasMusicMuted', 'false');
+        }
+    }
+    
+    updateUI() {
+        if (this.isPlaying) {
+            this.toggleBtn.classList.add('playing');
+            this.statusEl.textContent = 'ON';
+        } else {
+            this.toggleBtn.classList.remove('playing');
+            this.statusEl.textContent = 'OFF';
+        }
+    }
+}
+
+// Initialize music player
+new ChristmasMusic();
+
+// ==========================================
 // Christmas Countdown Timer
 // ==========================================
 function updateCountdown() {
@@ -240,7 +326,101 @@ document.addEventListener('DOMContentLoaded', () => {
     new ChristmasifyManager();
     new WhackAMoleGame();
     new GalleryParallax();
+    new VideoHandler();
 });
+
+// ==========================================
+// iOS Safari Video Handler
+// ==========================================
+class VideoHandler {
+    constructor() {
+        this.video = document.getElementById('holiday-video');
+        this.loadingOverlay = document.getElementById('video-loading');
+        
+        if (!this.video || !this.loadingOverlay) return;
+        
+        this.init();
+    }
+    
+    init() {
+        // Initially hide loading overlay (show only when actively loading)
+        this.loadingOverlay.classList.add('hidden');
+        
+        // Video event listeners
+        this.video.addEventListener('loadstart', () => this.showLoading());
+        this.video.addEventListener('waiting', () => this.showLoading());
+        this.video.addEventListener('canplay', () => this.hideLoading());
+        this.video.addEventListener('canplaythrough', () => this.hideLoading());
+        this.video.addEventListener('playing', () => this.hideLoading());
+        this.video.addEventListener('error', (e) => this.handleError(e));
+        
+        // iOS Safari specific: handle play button press
+        this.video.addEventListener('play', () => {
+            // Show loading when play is pressed but video needs to buffer
+            if (this.video.readyState < 3) {
+                this.showLoading();
+            }
+        });
+        
+        // Stalled event - video has stopped unexpectedly
+        this.video.addEventListener('stalled', () => {
+            console.log('Video stalled - attempting recovery');
+            this.showLoading();
+        });
+        
+        // iOS Safari: preload metadata to get duration/dimensions
+        if (this.isIOS()) {
+            this.video.load();
+        }
+    }
+    
+    isIOS() {
+        return /iPad|iPhone|iPod/.test(navigator.userAgent) || 
+               (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    }
+    
+    showLoading() {
+        this.loadingOverlay.classList.remove('hidden');
+    }
+    
+    hideLoading() {
+        this.loadingOverlay.classList.add('hidden');
+    }
+    
+    handleError(e) {
+        console.error('Video error:', e);
+        this.hideLoading();
+        
+        // Show user-friendly error message
+        const errorMessages = {
+            1: 'Video loading aborted',
+            2: 'Network error while loading video',
+            3: 'Video decoding error',
+            4: 'Video format not supported'
+        };
+        
+        const errorCode = this.video.error?.code;
+        const message = errorMessages[errorCode] || 'Error loading video';
+        
+        // Update loading overlay to show error
+        this.loadingOverlay.innerHTML = `
+            <span style="font-size: 2rem;">⚠️</span>
+            <span class="loading-text">${message}</span>
+            <button onclick="location.reload()" style="
+                margin-top: 15px;
+                padding: 10px 20px;
+                font-family: 'Mountains of Christmas', cursive;
+                font-size: 1rem;
+                background: var(--christmas-red);
+                color: white;
+                border: none;
+                border-radius: 20px;
+                cursor: pointer;
+            ">Try Again</button>
+        `;
+        this.loadingOverlay.classList.remove('hidden');
+    }
+}
 
 // ==========================================
 // Gallery Parallax Scroll Effect

@@ -7,9 +7,21 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Mountains+of+Christmas:wght@400;700&family=Crimson+Pro:wght@400;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=7">
+    <link rel="stylesheet" href="style.css?v=8">
 </head>
 <body>
+    <!-- Background Christmas Music - Using Archive.org public domain Christmas music -->
+    <audio id="christmas-music" loop preload="auto">
+        <source src="https://upload.wikimedia.org/wikipedia/commons/e/e5/We_Wish_You_a_Merry_Christmas_%28music_box%29.ogg" type="audio/ogg">
+        <source src="https://ia800605.us.archive.org/8/items/ClassicChristmasMusicCollection/01-JingleBells.mp3" type="audio/mpeg">
+    </audio>
+    
+    <!-- Music Toggle Button -->
+    <button id="music-toggle" class="music-toggle" aria-label="Toggle Christmas Music">
+        <span class="music-icon">🎵</span>
+        <span class="music-status">OFF</span>
+    </button>
+
     <!-- Snow Canvas -->
     <canvas id="snow-canvas"></canvas>
     
@@ -30,10 +42,21 @@
         <section class="video-section">
             <h2>Holiday Video</h2>
             <div class="video-container">
-                <video controls playsinline>
+                <video 
+                    id="holiday-video"
+                    controls 
+                    playsinline 
+                    webkit-playsinline
+                    preload="metadata"
+                    poster=""
+                >
                     <source src="photos/sorachristmasvideo.mp4" type="video/mp4">
                     Your browser does not support the video tag.
                 </video>
+                <div class="video-loading" id="video-loading">
+                    <span class="loading-spinner">❄️</span>
+                    <span class="loading-text">Loading video...</span>
+                </div>
             </div>
         </section>
 
@@ -216,6 +239,6 @@
         <p>&copy; 2025 Christmas Celebration</p>
     </footer>
 
-    <script src="script.js?v=9"></script>
+    <script src="script.js?v=10"></script>
 </body>
 </html>
