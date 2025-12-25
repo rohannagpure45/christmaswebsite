@@ -332,7 +332,7 @@ class WhackAMoleGame {
         this.newEntryIndex = -1;
         this.highlightTimeoutId = null;
         
-        this.characters = ['snowman', 'reindeer', 'present', 'candy'];
+        this.characters = ['snowman', 'reindeer', 'present', 'candy', 'komal', 'rohan', 'ram', 'keerti'];
         
         this.holes = document.querySelectorAll('.mole-hole');
         this.scoreEl = document.getElementById('game-score');

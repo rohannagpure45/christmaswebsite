@@ -531,6 +531,30 @@ main {
     font-size: 2rem;
 }
 
+.character.komal {
+    background: url('photos/KomalHeadshot.png') center center / cover no-repeat;
+    border-radius: 50%;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2), 0 0 0 3px var(--christmas-gold);
+}
+
+.character.rohan {
+    background: url('photos/Rohanheadshot.png') center center / cover no-repeat;
+    border-radius: 50%;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2), 0 0 0 3px var(--christmas-red);
+}
+
+.character.ram {
+    background: url('photos/ramheadshot.png') center center / cover no-repeat;
+    border-radius: 50%;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2), 0 0 0 3px var(--christmas-green);
+}
+
+.character.keerti {
+    background: url('photos/keertiheadshot.png') center center / cover no-repeat;
+    border-radius: 50%;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2), 0 0 0 3px var(--aurora-purple);
+}
+
 .game-btn {
     padding: 15px 40px;
     font-family: 'Mountains of Christmas', cursive;
