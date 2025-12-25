@@ -10,10 +10,8 @@ class ChristmasMusic {
         this.isToggling = false; // Debounce flag to prevent race conditions
         this.volume = 0.15; // Low/timid volume
         
-        // Web Audio API for iOS Safari compatibility
+        // AudioContext for iOS unlock only (NOT for routing audio)
         this.audioContext = null;
-        this.track = null; // MediaElementSource - connects audio to Web Audio API
-        this.isSetup = false;
         
         // Load user preference
         this.userMuted = localStorage.getItem('christmasMusicMuted') === 'true';
@@ -21,29 +19,37 @@ class ChristmasMusic {
         this.init();
     }
     
-    // Setup Web Audio API connection - MUST be called during user gesture
-    // This is the key to iOS Safari audio: connect the audio element to AudioContext
-    setupAudio() {
-        if (this.isSetup) return;
+    // Unlock audio for iOS Safari - creates and resumes AudioContext
+    // NOTE: Do NOT use createMediaElementSource() - it has iOS compatibility issues
+    // The AudioContext is only used to "unlock" audio, not to route it
+    // Returns a promise that resolves when audio is unlocked
+    unlockAudioContext() {
+        // Already unlocked
+        if (this.audioContext && this.audioContext.state === 'running') {
+            return Promise.resolve();
+        }
         
         try {
             const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-            if (!AudioContextClass) {
-                console.log('Web Audio API not supported');
-                return;
+            if (!AudioContextClass) return Promise.resolve();
+            
+            if (!this.audioContext) {
+                this.audioContext = new AudioContextClass();
             }
             
-            this.audioContext = new AudioContextClass();
+            // Resume if suspended - this unlocks audio on iOS
+            if (this.audioContext.state === 'suspended') {
+                return this.audioContext.resume().then(() => {
+                    console.log('AudioContext unlocked');
+                }).catch(err => {
+                    console.log('AudioContext resume failed:', err);
+                });
+            }
             
-            // KEY FOR iOS: Connect the HTML audio element to the AudioContext
-            // This routes the audio through Web Audio API, which iOS respects
-            this.track = this.audioContext.createMediaElementSource(this.audio);
-            this.track.connect(this.audioContext.destination);
-            
-            this.isSetup = true;
-            console.log('Audio setup complete - connected to Web Audio API');
+            return Promise.resolve();
         } catch (e) {
-            console.log('Audio setup failed:', e);
+            console.log('AudioContext creation failed:', e);
+            return Promise.resolve();
         }
     }
     
@@ -94,35 +100,22 @@ class ChristmasMusic {
     }
     
     play() {
-        // Setup Web Audio API connection on first play (requires user gesture)
-        this.setupAudio();
-        
-        // Resume AudioContext if suspended (iOS Safari suspends by default)
-        if (this.audioContext && this.audioContext.state === 'suspended') {
-            this.audioContext.resume().then(() => {
-                console.log('AudioContext resumed');
-                this.startPlayback();
-            }).catch(err => {
-                console.log('AudioContext resume failed:', err);
-                this.startPlayback(); // Try anyway
-            });
-        } else {
-            this.startPlayback();
-        }
-    }
-    
-    startPlayback() {
-        const playPromise = this.audio.play();
-        
-        if (playPromise !== undefined) {
-            playPromise.then(() => {
-                console.log('Audio playback started');
-            }).catch(err => {
-                console.log('Audio play failed:', err.message);
-                this.isPlaying = false;
-                this.updateUI();
-            });
-        }
+        // Unlock audio context for iOS (must happen during user gesture)
+        // Wait for unlock to complete before playing
+        this.unlockAudioContext().then(() => {
+            // Play the audio element directly - do NOT route through Web Audio API
+            const playPromise = this.audio.play();
+            
+            if (playPromise !== undefined) {
+                playPromise.then(() => {
+                    console.log('Audio playback started');
+                }).catch(err => {
+                    console.log('Audio play failed:', err.message);
+                    this.isPlaying = false;
+                    this.updateUI();
+                });
+            }
+        });
     }
     
     pause() {
